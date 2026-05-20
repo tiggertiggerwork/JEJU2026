@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>濟州島 2026 | Jeju Travel App</title>
+    <!-- 引入日式圓體風格字型 -->
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome 圖標 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #FF9E66; /* 柔和橙 */
+            --primary-light: #FFF2EB;
+            --bg-warm: #F7F6F3; /* 暖灰背景 */
+            --white: #FFFFFF;
+            --text-dark: #4A4A4A;
+            --text-muted: #8E8E93;
+            --radius-lg: 20px; /* 日式大圓角 */
+            --radius-md: 14px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Zen Maru Gothic', -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-warm);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* 手機容器 */
+        .phone-container {
+            width: 100%;
+            max-width: 430px; /* 模擬 iPhone Pro Max 寬度 */
+            background-color: var(--bg-warm);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 100px; /* 留給底部導覽條的空間 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header 濟州島果凍海 --- */
+        .header {
+            height: 180px;
+            position: relative;
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1542359649-31e03cd4d909?auto=format&fit=crop&w=600&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            color: var(--white);
+            border-bottom-left-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--radius-lg);
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        /* --- 主內容區 --- */
+        .content-section {
+            padding: 16px;
+            display: none; /* 預設隱藏，由 Tab 控制 */
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- 日式圓角卡片 --- */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            position: relative;
+            border: 1px solid rgba(255, 158, 102, 0.1);
+        }
+
+        .card-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 24px;
+            height: 24px;
+            background: #F2F2F7;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: none;
+            z-index: 10;
+        }
+
+        /* 拖曳操作按鈕組 */
+        .drag-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            border-top: 1px dashed #EEE;
+            padding-top: 8px;
+        }
+        .drag-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 標籤元件 */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-right: 6px;
+            margin-top: 6px;
+        }
+        .tag-eat { background: #FFE5E5; color: #FF5A5A; }
+        .tag-buy { background: #EAF9EE; color: #27AE60; }
+        .tag-photo { background: #E8F4FF; color: #2F80ED; }
+        .tag-cate { background: var(--primary-light); color: var(--primary); font-weight: bold;}
+
+        /* 按鈕樣式 */
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(255, 158, 102, 0.2);
+            transition: 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-nav {
+            background: #F2F2F7;
+            color: var(--text-dark);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        /* --- 行程 Tab 特有樣式 --- */
+        .day-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .day-tab {
+            padding: 8px 16px;
+            background: var(--white);
+            border-radius: 30px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            border: 1px solid transparent;
+        }
+        .day-tab.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .weather-info-box {
+            background: var(--primary-light);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #C66A36;
+        }
+
+        /* --- 購物 Tab 特有樣式 (左右分欄) --- */
+        .shopping-card-body {
+            display: flex;
+            gap: 12px;
+        }
+        .shopping-info { flex: 1; }
+        .shopping-img-placeholder {
+            width: 85px;
+            height: 85px;
+            background: #F2F2F7;
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 4px;
+        }
+
+        /* --- 貨幣兌換 Tab --- */
+        .rate-display {
+            display: flex;
+            justify-content: space-between;
+            background: #F8F9FA;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .converter-group {
+            margin-bottom: 12px;
+        }
+        .converter-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .converter-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .converter-input-wrap input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E5E5EA;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            outline: none;
+        }
+        .converter-input-wrap .unit {
+            position: absolute;
+            right: 12px;
+            font-weight: bold;
+            color: var(--text-dark);
+        }
+        .warning-text {
+            color: #FF3B30;
+            font-size: 12px;
+            margin-top: 14px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* --- 景點 Tab 篩選器 --- */
+        .filter-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .filter-select {
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid #E5E5EA;
+            background: var(--white);
+            font-size: 12px;
+            outline: none;
+        }
+
+        /* --- 表單/彈出視窗樣式 --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .modal-content {
+            background: var(--white);
+            width: 100%;
+            max-width: 430px;
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            padding: 20px;
+            max-height: 85%;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #E5E5EA;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* --- 底部浮動導覽列 --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 398px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            z-index: 900;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 10px;
+            padding: 6px 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    
+    <!-- Header -->
+    <div class="header">
+        <h1>濟州島 2026</h1>
+        <p><i class="fa-regular fa-calendar"></i> 2026.05.21 - 05.23 (3 Days)</p>
+    </div>
+
+    <!-- 1. 行程 TAB -->
+    <div id="tab-itinerary" class="content-section active">
+        <div class="day-selector">
+            <div class="day-tab active" onclick="switchDay(1)">Day 1 (5/21)</div>
+            <div class="day-tab" onclick="switchDay(2)">Day 2 (5/22)</div>
+            <div class="day-tab" onclick="switchDay(3)">Day 3 (5/23)</div>
+        </div>
+
+        <button class="btn-primary" style="margin-bottom: 16px;" onclick="openModal('modal-add-itinerary')">
+            <i class="fa-solid fa-plus"></i> 增加一個新行程
+        </button>
+
+        <!-- 行程卡片容器 -->
+        <div id="itinerary-list"></div>
+
+        <!-- 氣溫提示與穿著建議 -->
+        <div id="weather-tip-box" class="weather-info-box"></div>
+    </div>
+
+    <!-- 2. 天氣 TAB -->
+    <div id="tab-weather" class="content-section">
+        <h3 style="margin-bottom:12px;">濟州島即時氣候 (2026)</h3>
+        <div class="card">
+            <h4>5月21日 (今日)</h4>
+            <p style="font-size: 24px; color: var(--primary); margin: 8px 0;">21°C / 15°C <i class="fa-solid fa-cloud-sun"></i></p>
+            <p><strong>建議穿著：</strong>薄長袖配薄外套，海邊風大建議帶防風衣物。</p>
+        </div>
+        <div class="card">
+            <h4>5月22日 (明日)</h4>
+            <p style="font-size: 24px; color: #2F80ED; margin: 8px 0;">19°C / 14°C <i class="fa-solid fa-cloud-rain"></i></p>
+            <p><strong>建議穿著：</strong>有局部陣雨，攜帶雨具，穿著防水鞋類與防風外套。</p>
+        </div>
+    </div>
+
+    <!-- 3. 指南 TAB -->
+    <div id="tab-guide" class="content-section">
+        <div class="card">
+            <h3><i class="fa-solid fa-bus"></i> 濟州島公車班次即時查詢 (API 模擬)</h3>
+            <div style="margin-top:10px; display:flex; gap:6px;">
+                <input type="text" id="bus-search" class="form-control" placeholder="輸入公車路線 (如 101, 181)">
+                <button class="btn-primary" style="width:auto; padding:0 14px;" onclick="queryBusAPI()"><i class="fa-solid fa-search"></i></button>
+            </div>
+            <div id="bus-api-result" style="margin-top: 12px; font-size:13px; color:var(--text-dark);">
+                <span style="color:var(--text-muted);">請輸入路線號碼查詢即時動態...</span>
+            </div>
+        </div>
+
+        <button class="btn-primary" style="margin-bottom: 16px;" onclick="openModal('modal-add-something')">
+            <i class="fa-solid fa-plus"></i> Add Something
+        </button>
+        <div id="guide-list"></div>
+    </div>
+
+    <!-- 4. 貨幣兌換 TAB -->
+    <div id="tab-currency" class="content-section">
+        <div class="card">
+            <h3><i class="fa-solid fa-money-bill-transfer"></i> 貨幣兌換器</h3>
+            <div class="rate-display">
+                <span>港幣兌韓元: <b>1 : 165.5</b></span>
+                <span>韓元兌港幣: <b>1000 : 6.04</b></span>
+            </div>
+            
+            <div class="converter-group">
+                <label>輸入港幣 (HKD)</label>
+                <div class="converter-input-wrap">
+                    <input type="number" id="calc-hkd" placeholder="0" oninput="convertCurrency('hkd')">
+                    <span class="unit">HKD</span>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin:8px 0; color:var(--primary);"><i class="fa-solid fa-arrows-rotate"></i></div>
+
+            <div class="converter-group">
+                <label>輸入韓元 (KRW)</label>
+                <div class="converter-input-wrap">
+                    <input type="number" id="calc-krw" placeholder="0" oninput="convertCurrency('krw')">
+                    <span class="unit">KRW</span>
+                </div>
+            </div>
+
+            <p class="warning-text">用信用卡俾錢，請記得選擇以日圓結算！</p>
+        </div>
+    </div>
+
+    <!-- 5. 酒店 TAB -->
+    <div id="tab-hotel" class="content-section">
+        <button class="btn-primary" style="margin-bottom: 16px;" onclick="openModal('modal-add-hotel')">
+            <i class="fa-solid fa-plus"></i> Add Hotel
+        </button>
+        <div id="hotel-list"></div>
+    </div>
+
+    <!-- 6. 購物 TAB -->
+    <div id="tab-shopping" class="content-section">
+        <button class="btn-primary" style="margin-bottom: 16px;" onclick="openModal('modal-add-shopping')">
+            <i class="fa-solid fa-plus"></i> Need to buy
+        </button>
+        <div id="shopping-list"></div>
+    </div>
+
+    <!-- 7. 景點 TAB -->
+    <div id="tab-explore" class="content-section">
+        <!-- 景點篩選器 -->
+        <div class="filter-container">
+            <select id="filter-region" class="filter-select" onchange="filterExplore()">
+                <option value="">所有分區</option>
+                <option value="市中心">市中心</option>
+                <option value="西線">西線</option>
+                <option value="東線">東線</option>
+                <option value="南線">南線</option>
+            </select>
+            <select id="filter-subregion" class="filter-select" onchange="filterExplore()">
+                <option value="">所有細分區</option>
+                <option value="涯月">涯月</option>
+                <option value="咸德">咸德</option>
+                <option value="中文區">中文區</option>
+                <option value="蓮洞">蓮洞</option>
+            </select>
+            <select id="filter-cate" class="filter-select" onchange="filterExplore()">
+                <option value="">所有分類</option>
+                <option value="Cafe">Cafe</option>
+                <option value="景點">景點</option>
+                <option value="Shopping">Shopping</option>
+                <option value="餐廳🍴">餐廳🍴</option>
+            </select>
+        </div>
+
+        <button class="btn-primary" style="margin-bottom: 16px;" onclick="openModal('modal-add-explore')">
+            <i class="fa-solid fa-plus"></i> Add 想去嘅景點
+        </button>
+        <div id="explore-list"></div>
+    </div>
+
+
+    <!-- ==================== MODALS (彈出視窗表單) ==================== -->
+    
+    <!-- 1. 新增行程 Modal -->
+    <div id="modal-add-itinerary" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>增加一個新行程</h3><i class="fa-solid fa-xmark" onclick="closeModal('modal-add-itinerary')"></i></div>
+            <div class="form-group"><label>地點 (Day 1/2/3)</label>
+                <select id="form-iti-day" class="form-control"><option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option></select>
+            </div>
+            <div class="form-group"><label>預計到達時間</label><input type="time" id="form-iti-time" class="form-control" value="12:00"></div>
+            <div class="form-group"><label>景點名稱</label><input type="text" id="form-iti-name" class="form-control" placeholder="例如：涯月海邊咖啡街"></div>
+            <div class="form-group"><label>描述</label><textarea id="form-iti-desc" class="form-control" placeholder="必看海景與拍照點..."></textarea></div>
+            <div class="form-group"><label>景點分類</label>
+                <select id="form-iti-cate" class="form-control"><option>食物</option><option>活動</option><option>購物</option><option>景點</option><option>酒店</option><option>交通</option></select>
+            </div>
+            <div class="form-group"><label>彩色標籤</label>
+                <select id="form-iti-tag" class="form-control"><option value="tag-eat">必吃</option><option value="tag-buy">必買</option><option value="tag-photo">必拍</option></select>
+            </div>
+            <div class="form-group"><label>Google Maps 鏈接</label><input type="text" id="form-iti-maps" class="form-control" placeholder="https://goo.gl/maps/..."></div>
+            <button class="btn-primary" onclick="submitItinerary()">確認新增</button>
+        </div>
+    </div>
+
+    <!-- 2. Add Something Modal -->
+    <div id="modal-add-something" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Add Something</h3><i class="fa-solid fa-xmark" onclick="closeModal('modal-add-something')"></i></div>
+            <div class="form-group"><label>Name</label><input type="text" id="form-some-name" class="form-control" placeholder="例如：緊急電話 / 簽證須知"></div>
+            <div class="form-group"><label>資訊詳情</label><textarea id="form-some-detail" class="form-control" placeholder="請輸入詳細內容..."></textarea></div>
+            <button class="btn-primary" onclick="submitSomething()">確認新增</button>
+        </div>
+    </div>
+
+    <!-- 3. Add Hotel Modal -->
+    <div id="modal-add-hotel" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Add Hotel</h3><i class="fa-solid fa-xmark" onclick="closeModal('modal-add-hotel')"></i></div>
+            <div class="form-group"><label>酒店名稱</label><input type="text" id="form-hotel-name" class="form-control" placeholder="如：濟州君悅酒店"></div>
+            <div class="form-group"><label>地址</label><input type="text" id="form-hotel-addr" class="form-control" placeholder="濟州市老衡11街..."></div>
+            <div class="form-group"><label>入住日期</label>
+                <select id="form-hotel-date" class="form-control"><option value="1">Day 1 (5/21)</option><option value="2">Day 2 (5/22)</option><option value="3">Day 3 (5/23)</option></select>
+            </div>
+            <div class="form-group"><label>入住及退房時間</label><input type="text" id="form-hotel-time" class="form-control" value="CI: 15:00 / CO: 11:00"></div>
+            <div class="form-group"><label>Google Maps 鏈接</label><input type="text" id="form-hotel-maps" class="form-control" placeholder="https://goo.gl/maps/..."></div>
+            <button class="btn-primary" onclick="submitHotel()">確認新增</button>
+        </div>
+    </div>
+
+    <!-- 4. Need to buy Modal -->
+    <div id="modal-add-shopping" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Need to buy</h3><i class="fa-solid fa-xmark" onclick="closeModal('modal-add-shopping')"></i></div>
+            <div class="form-group"><label>Name</label><input type="text" id="form-shop-name" class="form-control" placeholder="如：漢拏峰橘子巧克力"></div>
+            <div class="form-group"><label>購買地點</label><input type="text" id="form-shop-loc" class="form-control" placeholder="如：東門市場"></div>
+            <div class="form-group"><label>上傳圖片 (選取模擬預設圖)</label>
+                <select id="form-shop-img" class="form-control"><option value="🍊">橘子類商品</option><option value="🗿">石頭爺爺公仔</option><option value="💄">美妝保養品</option></select>
+            </div>
+            <div class="form-group"><label>Google Maps 鏈接</label><input type="text" id="form-shop-maps" class="form-control" placeholder="https://goo.gl/maps/..."></div>
+            <button class="btn-primary" onclick="submitShopping()">確認新增</button>
+        </div>
+    </div>
+
+    <!-- 5. Add 想去嘅景點 Modal -->
+    <div id="modal-add-explore" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Add 想去嘅景點</h3><i class="fa-solid fa-xmark" onclick="closeModal('modal-add-explore')"></i></div>
+            <div class="form-group"><label>景點名稱</label><input type="text" id="form-exp-name" class="form-control" placeholder="如：GD 咖啡廳"></div>
+            <div class="form-group"><label>分區</label>
+                <select id="form-exp-region" class="form-control"><option>市中心</option><option>西線</option><option>東線</option><option>南線</option></select>
+            </div>
+            <div class="form-group"><label>細分區</label><input type="text" id="form-exp-sub" class="form-control" placeholder="如：涯月 / 咸德"></div>
+            <div class="form-group"><label>分類</label>
+                <select id="form-exp-cate" class="form-control"><option>Cafe</option><option>景點</option><option>Shopping</option><option>餐廳🍴</option></select>
+            </div>
+            <div class="form-group"><label>地址</label><input type="text" id="form-exp-addr" class="form-control" placeholder="詳細地址..."></div>
+            <div class="form-group"><label>Google Maps 鏈接</label><input type="text" id="form-exp-maps" class="form-control" placeholder="https://goo.gl/maps/..."></div>
+            <button class="btn-primary" onclick="submitExplore()">確認新增</button>
+        </div>
+    </div>
+
+
+    <!-- 底部浮動導覽條 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('itinerary', this)"><i class="fa-solid fa-route"></i>行程</div>
+        <div class="nav-item" onclick="switchTab('weather', this)"><i class="fa-solid fa-cloud-sun"></i>天氣</div>
+        <div class="nav-item" onclick="switchTab('guide', this)"><i class="fa-solid fa-compass"></i>指南</div>
+        <div class="nav-item" onclick="switchTab('currency', this)"><i class="fa-solid fa-money-bill-1-wave"></i>匯率</div>
+        <div class="nav-item" onclick="switchTab('hotel', this)"><i class="fa-solid fa-hotel"></i>酒店</div>
+        <div class="nav-item" onclick="switchTab('shopping', this)"><i class="fa-solid fa-bag-shopping"></i>購物</div>
+        <div class="nav-item" onclick="switchTab('explore', this)"><i class="fa-solid fa-map-location-dot"></i>景點</div>
+    </div>
+
+</div>
+
+<!-- ==================== JAVASCRIPT BUSINESS LOGIC ==================== -->
+<script>
+    // --- 資料初始化與狀態管理 ---
+    let currentDay = 1;
+    const exchangeRate = 165.5; // 1 HKD = 165.5 KRW
+
+    let itineraries = [
+        { id: 1, day: 1, time: "10:30", name: "涯月海邊 ☕️", desc: "必拍的果凍海無敵窗景咖啡廳，記得坐窗邊位置。", cate: "食物", tag: "tag-photo", maps: "https://maps.google.com" },
+        { id: 2, day: 1, time: "14:00", name: "彩虹海岸公路 🌈", desc: "非常適合散步拍照的彩色防波堤磚。", cate: "景點", tag: "tag-photo", maps: "https://maps.google.com" }
+    ];
+
+    let guides = [
+        { id: 1, name: "濟州計程車心德", detail: "建議下載 Kakao T 叫車，綁定海外信用卡非常方便，不用擔心溝通問題。" }
+    ];
+
+    let hotels = [
+        { id: 1, name: "濟州海景大酒店", addr: "濟州市臨海路 123 號", time: "CI: 15:00 / CO: 11:00", maps: "https://maps.google.com", date: 1 }
+    ];
+
+    let shoppings = [
+        { id: 1, name: "漢拏峰橘子朱古力", loc: "東門市場第3出口", img: "🍊", maps: "https://maps.google.com" }
+    ];
+
+    let explores = [
+        { id: 1, name: "城山日出峰", region: "東線", subregion: "咸德", cate: "景點", addr: "濟州特別自治道西歸浦市城山邑日出路287-22", maps: "https://maps.google.com" },
+        { id: 2, name: "MoMo Cafe", region: "西線", subregion: "涯月", cate: "Cafe", addr: "涯月邑平華路", maps: "https://maps.google.com" }
+    ];
+
+    const weatherData = {
+        1: { temp: "21°C / 15°C", dress: "👕 建議穿著：薄長袖配薄外套，海邊風大建議帶防風衣物。" },
+        2: { temp: "19°C / 14°C", dress: "☔ 建議穿著：有局部陣雨，攜帶雨具，穿著防風防水外套。" },
+        3: { temp: "23°C / 16°C", dress: "☀️ 建議穿著：晴朗舒適！短袖加上防曬薄襯衫即可。" }
+    };
+
+    // --- 核心系統功能 ---
+    window.onload = function() {
+        renderItinerary();
+        renderGuides();
+        renderHotels();
+        renderShopping();
+        renderExplore();
+    };
+
+    // Tab 切換
+    function switchTab(tabId, el) {
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        el.classList.add('active');
+    }
+
+    // 行程天數切換
+    function switchDay(dayNum) {
+        currentDay = dayNum;
+        document.querySelectorAll('.day-tab').forEach((tab, index) => {
+            tab.classList.toggle('active', index === (dayNum - 1));
+        });
+        renderItinerary();
+    }
+
+    // 彈窗開關
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // 自動計算停車與加油 (自駕模擬算法)
+    function getParkingAndGasInfo(cate) {
+        if (["食物", "景點", "咖啡", "Cafe", "餐廳🍴"].includes(cate)) {
+            return `🅿️ 附設免費停車場 (位置充足) <br> ⛽ 附近 500m 有 SK 精神加油站`;
+        } else if (cate === "購物") {
+            return `🅿️ 市區收費停車場 (每小時 1,000 韓元) <br> ⛽ 最近加油站在主要幹道轉角`;
+        }
+        return `🅿️ 請確認周邊路邊停車格情況。`;
+    }
+
+    // --- 渲染渲染渲染功能組 ---
+
+    // 1. 行程頁面渲染 (包含自動新增酒店邏輯)
+    function renderItinerary() {
+        const list = document.getElementById('itinerary-list');
+        list.innerHTML = '';
+        
+        // 過濾出本日行程
+        let dayIti = itineraries.filter(item => item.day == currentDay);
+
+        // 自動檢查本日是否有預訂酒店，若有，自動在行程前方注入一張酒店卡片
+        let dayHotels = hotels.filter(h => h.date == currentDay);
+        dayHotels.forEach(h => {
+            const hCard = document.createElement('div');
+            hCard.className = 'card';
+            hCard.style.borderLeft = '5px solid #5AC8FA';
+            hCard.innerHTML = `
+                <span class="tag tag-cate">🏨 酒店入住連動</span>
+                <h4 style="margin-top:6px;">${h.name}</h4>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">⏱️ ${h.time}</p>
+                <p style="font-size:12px; margin-top:4px;"><i class="fa-solid fa-location-dot"></i> ${h.addr}</p>
+                <a href="${h.maps}" target="_blank" class="btn-nav"><i class="fa-solid fa-location-arrow"></i> 導航酒店</a>
+            `;
+            list.appendChild(hCard);
+        });
+
+        // 排序行程時間
+        dayIti.sort((a,b) => a.time.localeCompare(b.time));
+
+        dayIti.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="card-close-btn" onclick="deleteItem('itinerary', ${item.id})"><i class="fa-solid fa-xmark"></i></button>
+                <span class="tag tag-cate">${item.cate}</span>
+                <span class="tag ${item.tag}">${item.tag === 'tag-eat' ? '必吃' : item.tag === 'tag-buy' ? '必買' : '必拍'}</span>
+                <h3 style="margin: 8px 0 4px 0; font-size:16px;">⏱️ ${item.time} - ${item.name}</h3>
+                <p style="font-size: 13px; color: var(--text-dark); margin-bottom: 8px;">${item.desc}</p>
+                
+                <div style="background: #FAF9F6; padding: 8px; border-radius: 8px; font-size: 11px; color: #8A8A8F; margin-bottom:8px;">
+                    ${getParkingAndGasInfo(item.cate)}
+                </div>
+
+                <a href="${item.maps}" target="_blank" class="btn-nav"><i class="fa-solid fa-location-arrow"></i> Google Maps 導航</a>
+                
+                <div class="drag-controls">
+                    <button class="drag-btn" onclick="moveOrder('itinerary', ${index}, -1)"><i class="fa-solid fa-arrow-up"></i> 上移</button>
+                    <button class="drag-btn" onclick="moveOrder('itinerary', ${index}, 1)"><i class="fa-solid fa-arrow-down"></i> 下移</button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+
+        // 更新天氣穿著提示
+        const tipBox = document.getElementById('weather-tip-box');
+        tipBox.innerHTML = `<strong>本日氣溫: ${weatherData[currentDay].temp}</strong><br>${weatherData[currentDay].dress}`;
+    }
+
+    // 2. 指南渲染
+    function renderGuides() {
+        const list = document.getElementById('guide-list');
+        list.innerHTML = '';
+        guides.forEach(g => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="card-close-btn" onclick="deleteItem('guide', ${g.id})"><i class="fa-solid fa-xmark"></i></button>
+                <h4>📌 ${g.name}</h4>
+                <p style="font-size:13px; color:var(--text-dark); margin-top:6px; line-height:1.4;">${g.detail}</p>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    // 3. 酒店渲染
+    function renderHotels() {
+        const list = document.getElementById('hotel-list');
+        list.innerHTML = '';
+        hotels.forEach(h => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="card-close-btn" onclick="deleteItem('hotel', ${h.id})"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="font-size:16px; color:var(--primary);"><i class="fa-solid fa-hotel"></i> ${h.name}</h3>
+                <p style="font-size:13px; margin: 6px 0 2px 0;"><b>地址：</b>${h.addr}</p>
+                <p style="font-size:13px; color:var(--text-muted);"><b>時間：</b>${h.time} (Day ${h.date} 入住)</p>
+                <a href="${h.maps}" target="_blank" class="btn-nav"><i class="fa-solid fa-location-arrow"></i> Google Maps 導航</a>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    // 4. 購物渲染 (左右切割結構)
+    function renderShopping() {
+        const list = document.getElementById('shopping-list');
+        list.innerHTML = '';
+        shoppings.forEach((s, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="card-close-btn" onclick="deleteItem('shopping', ${s.id})"><i class="fa-solid fa-xmark"></i></button>
+                <div class="shopping-card-body">
+                    <div class="shopping-info">
+                        <h4 style="font-size:15px;">${s.name}</h4>
+                        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 6px 0;"><i class="fa-solid fa-shop"></i> ${s.loc}</p>
+                        <a href="${s.maps}" target="_blank" class="btn-nav" style="margin-top:0;"><i class="fa-solid fa-location-arrow"></i> 購買地導航</a>
+                    </div>
+                    <div class="shopping-img-placeholder">
+                        <span style="font-size:28px;">${s.img}</span>
+                        <span>Item Pic</span>
+                    </div>
+                </div>
+                <div class="drag-controls">
+                    <button class="drag-btn" onclick="moveOrder('shopping', ${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button class="drag-btn" onclick="moveOrder('shopping', ${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    // 5. 想去景點渲染 + 篩選
+    function renderExplore() {
+        const list = document.getElementById('explore-list');
+        list.innerHTML = '';
+
+        const rFilter = document.getElementById('filter-region').value;
+        const sFilter = document.getElementById('filter-subregion').value;
+        const cFilter = document.getElementById('filter-cate').value;
+
+        let filtered = explores.filter(e => {
+            return (!rFilter || e.region === rFilter) &&
+                   (!sFilter || e.subregion.includes(sFilter)) &&
+                   (!cFilter || e.cate === cFilter);
+        });
+
+        filtered.forEach((e, index) => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <button class="card-close-btn" onclick="deleteItem('explore', ${e.id})"><i class="fa-solid fa-xmark"></i></button>
+                <span class="tag tag-cate">${e.region} · ${e.subregion}</span>
+                <span class="tag tag-photo">${e.cate}</span>
+                <h4 style="margin-top:6px; font-size:15px;">${e.name}</h4>
+                <p style="font-size:12px; color:var(--text-muted); margin: 4px 0 8px 0;"><i class="fa-solid fa-location-dot"></i> ${e.addr}</p>
+                <a href="${e.maps}" target="_blank" class="btn-nav" style="margin-top:0;"><i class="fa-solid fa-location-arrow"></i> 導航景點</a>
+                <div class="drag-controls">
+                    <button class="drag-btn" onclick="moveOrder('explore', ${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button class="drag-btn" onclick="moveOrder('explore', ${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    function filterExplore() { renderExplore(); }
+
+
+    // --- 刪除與排序操作處理 ---
+    function deleteItem(type, id) {
+        if (type === 'itinerary') itineraries = itineraries.filter(i => i.id !== id);
+        if (type === 'guide') guides = guides.filter(g => g.id !== id);
+        if (type === 'hotel') hotels = hotels.filter(h => h.id !== id);
+        if (type === 'shopping') shoppings = shoppings.filter(s => s.id !== id);
+        if (type === 'explore') explores = explores.filter(e => e.id !== id);
+        
+        // 重新刷新對應頁面
+        renderItinerary(); renderGuides(); renderHotels(); renderShopping(); renderExplore();
+    }
+
+    // 模擬手機原生拖曳次序(使用上下按鈕)
+    function moveOrder(type, index, direction) {
+        let arr;
+        if (type === 'itinerary') arr = itineraries.filter(item => item.day == currentDay); // 針對當天行程排序
+        if (type === 'shopping') arr = shoppings;
+        if (type === 'explore') arr = explores;
+
+        let targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= arr.length) return; // 超出邊界
+
+        // 陣列元素位置互換
+        if (type === 'itinerary') {
+            // 先找出原陣列中的真正物件
+            let actualCurrent = itineraries.findIndex(i => i.id === arr[index].id);
+            let actualTarget = itineraries.findIndex(i => i.id === arr[targetIndex].id);
+            let temp = itineraries[actualCurrent];
+            itineraries[actualCurrent] = itineraries[actualTarget];
+            itineraries[actualTarget] = temp;
+        } else {
+            let temp = arr[index];
+            arr[index] = arr[targetIndex];
+            arr[targetIndex] = temp;
+        }
+
+        renderItinerary(); renderShopping(); renderExplore();
+    }
+
+
+    // --- 匯率雙向換算功能 ---
+    function convertCurrency(type) {
+        const hkdInput = document.getElementById('calc-hkd');
+        const krwInput = document.getElementById('calc-krw');
+
+        if (type === 'hkd') {
+            if(hkdInput.value === "") { krwInput.value = ""; return; }
+            krwInput.value = Math.round(parseFloat(hkdInput.value) * exchangeRate);
+        } else {
+            if(krwInput.value === "") { hkdInput.value = ""; return; }
+            hkdInput.value = (parseFloat(krwInput.value) / exchangeRate).toFixed(2);
+        }
+    }
+
+
+    // --- 指南 TAB 巴士 API 查詢功能模擬 ---
+    function queryBusAPI() {
+        const busNum = document.getElementById('bus-search').value.trim();
+        const resultDiv = document.getElementById('bus-api-result');
+        if(!busNum) { resultDiv.innerHTML = '❌ 請輸入路線號碼。'; return; }
+
+        resultDiv.innerHTML = `⏳ 正在連接濟州大眾運輸 API 系統...`;
+
+        setTimeout(() => {
+            if(busNum === '101') {
+                resultDiv.innerHTML = `<strong>🚌 急行巴士 101路 (全境東線循環)</strong><br>下一班車預計抵達：【濟州機場站】 8分鐘後<br>班次班距：20分鐘`;
+            } else if(busNum === '102') {
+                resultDiv.innerHTML = `<strong>🚌 急行巴士 102路 (全境西線循環)</strong><br>下一班車預計抵達：【下貴小學站】 14分鐘後<br>班次班距：25分鐘`;
+            } else {
+                resultDiv.innerHTML = `<strong>🚌 巴士 ${busNum}路 班次結果</strong><br>離你最近的站點下一班預計：12分鐘後抵達。 (模擬 2026 即時動態數據)`;
+            }
+        }, 600);
+    }
+
+
+    // --- 表單提交數據接收處理 ---
+    function submitItinerary() {
+        const day = document.getElementById('form-iti-day').value;
+        const time = document.getElementById('form-iti-time').value || "12:00";
+        const name = document.getElementById('form-iti-name').value || "未命名景點";
+        const desc = document.getElementById('form-iti-desc').value || "暫無細節說明。";
+        const cate = document.getElementById('form-iti-cate').value;
+        const tag = document.getElementById('form-iti-tag').value;
+        const maps = document.getElementById('form-iti-maps').value || "https://maps.google.com";
+
+        itineraries.push({ id: Date.now(), day, time, name, desc, cate, tag, maps });
+        closeModal('modal-add-itinerary');
+        renderItinerary();
+    }
+
+    function submitSomething() {
+        const name = document.getElementById('form-some-name').value || "新指南資訊";
+        const detail = document.getElementById('form-some-detail').value || "無詳情。";
+        guides.push({ id: Date.now(), name, detail });
+        closeModal('modal-add-something');
+        renderGuides();
+    }
+
+    function submitHotel() {
+        const name = document.getElementById('form-hotel-name').value || "未知名度假村";
+        const addr = document.getElementById('form-hotel-addr').value || "濟州島周邊";
+        const date = document.getElementById('form-hotel-date').value;
+        const time = document.getElementById('form-hotel-time').value;
+        const maps = document.getElementById('form-hotel-maps').value || "https://maps.google.com";
+
+        hotels.push({ id: Date.now(), name, addr, time, maps, date });
+        closeModal('modal-add-hotel');
+        renderHotels();
+        renderItinerary(); // 自動在行程卡片聯動同步
+    }
+
+    function submitShopping() {
+        const name = document.getElementById('form-shop-name').value || "推薦伴手禮";
+        const loc = document.getElementById('form-shop-loc').value || "濟州免稅店";
+        const img = document.getElementById('form-shop-img').value;
+        const maps = document.getElementById('form-shop-maps').value || "https://maps.google.com";
+
+        shoppings.push({ id: Date.now(), name, loc, img, maps });
+        closeModal('modal-add-shopping');
+        renderShopping();
+    }
+
+    function submitExplore() {
+        const name = document.getElementById('form-exp-name').value || "夢幻候選景點";
+        const region = document.getElementById('form-exp-region').value;
+        const subregion = document.getElementById('form-exp-sub').value || "周邊區域";
+        const cate = document.getElementById('form-exp-cate').value;
+        const addr = document.getElementById('form-exp-addr').value || "濟州島內";
+        const maps = document.getElementById('form-exp-maps').value || "https://maps.google.com";
+
+        explores.push({ id: Date.now(), name, region, subregion, cate, addr, maps });
+        closeModal('modal-add-explore');
+        renderExplore();
+    }
+</script>
+</body>
+</html>

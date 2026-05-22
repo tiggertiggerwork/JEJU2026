@@ -53,7 +53,7 @@
         .header {
             height: 180px;
             position: relative;
-            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://alinalife.tw/webp/wp-content/uploads/2022/08/DSCF6351.jpg.webp?auto=format&fit=crop&w=600&q=80');
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1542359649-31e03cd4d909?auto=format&fit=crop&w=600&q=80');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -417,7 +417,7 @@
         <div class="filter-container">
             <select id="filter-region" class="filter-select" onchange="filterExplore()"><option value="">所有分區</option><option value="市中心">市中心</option><option value="西線">西線</option><option value="東線">東線</option><option value="南線">南線</option></select>
             <select id="filter-subregion" class="filter-select" onchange="filterExplore()"><option value="">所有細分區</option><option value="涯月">涯月</option><option value="咸德">咸德</option><option value="中文區">中文區</option></select>
-            <select id="filter-cate" class="filter-select" onchange="filterExplore()"><option value="">所有分類</option><option value="Cafe">Cafe</option><option value="景點">景點</option><option value="Shopping">Shopping</option><option value="餐廳🍴">餐廳🍴</option></select>
+            <select id="filter-cate" class="filter-select" onchange="filterExplore()"><option value="">所有分類</option><option value="Cafe">Cafe</option><option value="景點">景點</option><option value="Shopping">Shopping</option><option value="餐廳🍴</option></select>
         </div>
         <button class="btn-primary" style="margin-bottom: 16px;" onclick="openModal('modal-add-explore')"><i class="fa-solid fa-plus"></i> Add 想去嘅景點</button>
         <div id="explore-list"></div>
@@ -522,14 +522,14 @@
     let currentDay = 1;
     const exchangeRate = 165.5;
 
-    // 核心資料庫暫存暫存
+    // 記憶體宣告
     let itineraries = [];
     let guides = [];
     let hotels = [];
     let shoppings = [];
     let explores = [];
 
-    // 預設核心初始資料 (僅在第一次開啟、LocalStorage無紀錄時載入)
+    // 備用初始範例資料庫
     const defaultItineraries = [{ id: 1, day: 1, time: "11:00", name: "涯月海邊漢堡店 🍔", desc: "2026.06.09 首站美食！無敵蔚藍海景配手工黑豬肉漢堡。", cate: "食物", tag: "tag-eat", maps: "https://maps.google.com" }];
     const defaultGuides = [
         { id: 1, name: "T-money 交通卡儲值提示", detail: "濟州巴士可以使用 T-money，超商皆能儲值。上車刷卡，下車也要刷卡才可以享有轉乘優惠。", pinned: false },
@@ -549,20 +549,24 @@
         6: { dateStr: "2026.06.14", ddmm: "14/06", temp: "23°C / 17°C", dress: "✈️ 建議穿著：回程日，著重輕便好穿脫的機艙穿著。" }
     };
 
-    // --- 核心 LocalStorage 記憶管理機制 ---
+    // --- 核心安全存取控管 ---
     window.onload = function() {
-        // 從瀏覽器硬碟讀取資料，若無舊紀錄則套用預設初始範例
-        itineraries = localStorage.getItem('jeju_itineraries') ? JSON.parse(localStorage.getItem('jeju_itineraries')) : defaultItineraries;
-        guides = localStorage.getItem('jeju_guides') ? JSON.parse(localStorage.getItem('jeju_guides')) : defaultGuides;
-        hotels = localStorage.getItem('jeju_hotels') ? JSON.parse(localStorage.getItem('jeju_hotels')) : defaultHotels;
-        shoppings = localStorage.getItem('jeju_shoppings') ? JSON.parse(localStorage.getItem('jeju_shoppings')) : defaultShoppings;
-        explores = localStorage.getItem('jeju_explores') ? JSON.parse(localStorage.getItem('jeju_explores')) : defaultExplores;
+        // 第一步：精準判斷硬碟內到底有沒有資料
+        const localIti = localStorage.getItem('jeju_itineraries');
+        const localGui = localStorage.getItem('jeju_guides');
+        const localHot = localStorage.getItem('jeju_hotels');
+        const localShop = localStorage.getItem('jeju_shoppings');
+        const localExp = localStorage.getItem('jeju_explores');
 
-        // 首度同步存檔存檔
-        saveAllData();
+        // 第二步：只有在硬碟完全為空時，才塞入範例資料，否則絕對以硬碟舊檔優先
+        itineraries = localIti ? JSON.parse(localIti) : defaultItineraries;
+        guides = localGui ? JSON.parse(localGui) : defaultGuides;
+        hotels = localHot ? JSON.parse(localHot) : defaultHotels;
+        shoppings = localShop ? JSON.parse(localShop) : defaultShoppings;
+        explores = localExp ? JSON.parse(localExp) : defaultExplores;
 
-        // 渲染畫面
-        renderItinerary(); renderGuides(); renderHotels(); renderShopping(); renderExplore();
+        // 第三步：渲染頁面 (此處不再盲目調用 saveAllData，防止洗掉剛輸入的資料)
+        renderAll();
     };
 
     function saveAllData() {
@@ -573,7 +577,11 @@
         localStorage.setItem('jeju_explores', JSON.stringify(explores));
     }
 
-    // --- UI 交互機制 ---
+    function renderAll() {
+        renderItinerary(); renderGuides(); renderHotels(); renderShopping(); renderExplore();
+    }
+
+    // --- UI 模組切換 ---
     function switchTab(tabId, el) {
         document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -594,12 +602,12 @@
 
     function getParkingAndGasInfo(cate) {
         if (["食物", "景點", "Cafe", "餐廳🍴"].includes(cate)) {
-            return `P 附設專屬免費停車場 <br> G 附近 1km 內有 GSCaltex 自助加油站`;
+            return `P 附設專屬免費停車場 <br> G 附近 1km 內有 GSCaltex 加油站`;
         }
         return `P 周邊有公有免費停車格。`;
     }
 
-    // --- 頁面模組渲染引擎 ---
+    // --- 渲染引擎組 ---
     function renderItinerary() {
         const list = document.getElementById('itinerary-list');
         list.innerHTML = '';
@@ -655,7 +663,7 @@
             card.className = `card ${g.pinned ? 'pinned' : ''}`;
             card.innerHTML = `
                 <button class="card-close-btn" onclick="deleteItem('guide', ${g.id})"><i class="fa-solid fa-xmark"></i></button>
-                <h4>${g.pinned ? '📌 ' : '📌 '}${g.name}</h4>
+                <h4>📌 ${g.name}</h4>
                 <p style="font-size:13px; color:var(--text-dark); margin-top:6px; line-height:1.4;">${g.detail}</p>
                 <div class="drag-controls">
                     <button class="drag-btn pin-btn" onclick="togglePinGuide(${g.id})">
@@ -731,7 +739,7 @@
         });
     }
 
-    // --- 資料數據變動與同步核心處理 ---
+    // --- 事件控制與資料寫入 ---
     function deleteItem(type, id) {
         if (type === 'itinerary') itineraries = itineraries.filter(i => i.id !== id);
         if (type === 'guide') guides = guides.filter(g => g.id !== id);
@@ -739,8 +747,8 @@
         if (type === 'shopping') shoppings = shoppings.filter(s => s.id !== id);
         if (type === 'explore') explores = explores.filter(e => e.id !== id);
         
-        saveAllData(); // 立即覆寫硬碟舊檔
-        renderItinerary(); renderGuides(); renderHotels(); renderShopping(); renderExplore();
+        saveAllData(); // 立即存檔
+        renderAll();
     }
 
     function moveOrder(type, index, direction) {
@@ -754,21 +762,24 @@
             let temp = arr[index]; arr[index] = arr[targetIndex]; arr[targetIndex] = temp;
         }
         
-        saveAllData(); // 立即同步排序次序
-        renderItinerary(); renderShopping(); renderExplore();
+        saveAllData(); // 立即存檔
+        renderAll();
     }
 
-    // --- 各大表單資料提交接收點 ---
     function submitItinerary() { 
         const day = document.getElementById('form-iti-day').value, time = document.getElementById('form-iti-time').value || "12:00", name = document.getElementById('form-iti-name').value || "未命名行程", desc = document.getElementById('form-iti-desc').value || "", cate = document.getElementById('form-iti-cate').value, tag = document.getElementById('form-iti-tag').value, maps = document.getElementById('form-iti-maps').value || "https://maps.google.com"; 
         itineraries.push({ id: Date.now(), day, time, name, desc, cate, tag, maps }); 
-        saveAllData(); closeModal('modal-add-itinerary'); renderItinerary(); 
+        saveAllData(); 
+        closeModal('modal-add-itinerary'); 
+        renderItinerary(); 
     }
     
     function submitSomething() { 
         const name = document.getElementById('form-some-name').value || "新規範", detail = document.getElementById('form-some-detail').value || ""; 
         guides.push({ id: Date.now(), name, detail, pinned: false }); 
-        saveAllData(); closeModal('modal-add-something'); renderGuides(); 
+        saveAllData(); 
+        closeModal('modal-add-something'); 
+        renderGuides(); 
     }
     
     function submitHotel() {
@@ -784,22 +795,27 @@
         if(checkedDays.length === 0) { alert('請至少選擇一天的入住日期！'); return; }
 
         hotels.push({ id: Date.now(), name, addr, time, maps, dates: checkedDays });
-        saveAllData(); closeModal('modal-add-hotel'); renderHotels(); renderItinerary(); 
+        saveAllData(); 
+        closeModal('modal-add-hotel'); 
+        renderHotels(); renderItinerary(); 
     }
 
     function submitShopping() { 
         const name = document.getElementById('form-shop-name').value || "名產", loc = document.getElementById('form-shop-loc').value || "濟州商店", img = document.getElementById('form-shop-img').value, maps = document.getElementById('form-shop-maps').value || "https://maps.google.com"; 
         shoppings.push({ id: Date.now(), name, loc, img, maps }); 
-        saveAllData(); closeModal('modal-add-shopping'); renderShopping(); 
+        saveAllData(); 
+        closeModal('modal-add-shopping'); 
+        renderShopping(); 
     }
     
     function submitExplore() { 
         const name = document.getElementById('form-exp-name').value || "候選景點", region = document.getElementById('form-exp-region').value, subregion = document.getElementById('form-exp-sub').value || "通用", cate = document.getElementById('form-exp-cate').value, addr = document.getElementById('form-exp-addr').value || "濟州", maps = document.getElementById('form-exp-maps').value || "https://maps.google.com"; 
         explores.push({ id: Date.now(), name, region, subregion, cate, addr, maps }); 
-        saveAllData(); closeModal('modal-add-explore'); renderExplore(); 
+        saveAllData(); 
+        closeModal('modal-add-explore'); 
+        renderExplore(); 
     }
 
-    // --- 工具庫功能 ---
     function filterExplore() { renderExplore(); }
     function convertCurrency(type) { const h = document.getElementById('calc-hkd'), k = document.getElementById('calc-krw'); if (type === 'hkd') { if(h.value==="") {k.value=""; return;} k.value = Math.round(parseFloat(h.value)*exchangeRate); } else { if(k.value==="") {h.value=""; return;} h.value = (parseFloat(k.value)/exchangeRate).toFixed(2); } }
     function queryBusAPI() { const b = document.getElementById('bus-search').value.trim(), r = document.getElementById('bus-api-result'); if(!b) { r.innerHTML = '❌ 請輸入號碼'; return; } r.innerHTML = `⏳ 連接濟州大眾運輸 API 中...`; setTimeout(() => { r.innerHTML = `<strong>🚌 巴士 ${b} 路線 (2026 最新班次)</strong><br>下一班車：12 分鐘後到達。<br>行經班距：15~25 分鐘固定一班。`; }, 500); }

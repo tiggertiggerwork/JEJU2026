@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MY JEJU 2026</title>
+    <title>濟州島 2026 | Jeju Travel App</title>
     <!-- 引入日式圓體風格字型 -->
     <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- FontAwesome 圖標 -->
@@ -53,7 +53,7 @@
         .header {
             height: 180px;
             position: relative;
-            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://alinalife.tw/webp/wp-content/uploads/2022/08/DSCF6352.jpg.webp?auto=format&fit=crop&w=600&q=80');
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1542359649-31e03cd4d909?auto=format&fit=crop&w=600&q=80');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -231,7 +231,7 @@
             color: #C66A36;
         }
 
-        /* --- 複選框樣式 (用於多天住宿選擇) --- */
+        /* --- 複選框樣式 --- */
         .checkbox-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -252,7 +252,7 @@
             cursor: pointer;
         }
 
-        /* --- 購物 Tab 特有樣式 (左右分欄) --- */
+        /* --- 購物 Tab 特有樣式 --- */
         .shopping-card-body {
             display: flex;
             gap: 12px;
@@ -454,7 +454,7 @@
         </div>
     </div>
 
-    <!-- Add Hotel Modal (支援多日勾選) -->
+    <!-- Add Hotel Modal -->
     <div id="modal-add-hotel" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h3>Add Hotel</h3><i class="fa-solid fa-xmark" onclick="closeModal('modal-add-hotel')"></i></div>
@@ -522,29 +522,24 @@
     let currentDay = 1;
     const exchangeRate = 165.5;
 
-    // 核心數據庫
-    let itineraries = [
-        { id: 1, day: 1, time: "11:00", name: "涯月海邊漢堡店 🍔", desc: "2026.06.09 首站美食！無敵蔚藍海景配手工黑豬肉漢堡。", cate: "食物", tag: "tag-eat", maps: "https://maps.google.com" }
-    ];
+    // 核心資料庫暫存暫存
+    let itineraries = [];
+    let guides = [];
+    let hotels = [];
+    let shoppings = [];
+    let explores = [];
 
-    let guides = [
+    // 預設核心初始資料 (僅在第一次開啟、LocalStorage無紀錄時載入)
+    const defaultItineraries = [{ id: 1, day: 1, time: "11:00", name: "涯月海邊漢堡店 🍔", desc: "2026.06.09 首站美食！無敵蔚藍海景配手工黑豬肉漢堡。", cate: "食物", tag: "tag-eat", maps: "https://maps.google.com" }];
+    const defaultGuides = [
         { id: 1, name: "T-money 交通卡儲值提示", detail: "濟州巴士可以使用 T-money，超商皆能儲值。上車刷卡，下車也要刷卡才可以享有轉乘優惠。", pinned: false },
-        { id: 2, name: "2026 濟州自駕國際駕照", detail: "記得帶台灣/香港簽發的國際駕駛執照正本以及本地執照正本，缺一不可！", pinned: true } // 預設一個置頂
+        { id: 2, name: "2026 濟州自駕國際駕照", detail: "記得帶本地駕駛執照正本以及國際駕照正本，缺一不可！", pinned: true }
     ];
+    const defaultHotels = [{ id: 1, name: "涯月日落海景飯店", addr: "濟州特別自治道涯月邑海邊路 456", time: "CI: 15:00 / CO: 11:00", maps: "https://maps.google.com", dates: [1, 2] }];
+    const defaultShoppings = [{ id: 1, name: "石頭爺爺橘子雞蛋糕", loc: "東門傳統市場", img: "🍊", maps: "https://maps.google.com" }];
+    const defaultExplores = [{ id: 1, name: "涉地可支", region: "東線", subregion: "咸德", cate: "景點", addr: "古城裏 21-1", maps: "https://maps.google.com" }];
 
-    let hotels = [
-        { id: 1, name: "涯月日落海景飯店", addr: "濟州特別自治道涯月邑海邊路 456", time: "CI: 15:00 / CO: 11:00", maps: "https://maps.google.com", dates: [1, 2] } // 預設住前兩天
-    ];
-
-    let shoppings = [
-        { id: 1, name: "石頭爺爺橘子雞蛋糕", loc: "東門傳統市場", img: "🍊", maps: "https://maps.google.com" }
-    ];
-
-    let explores = [
-        { id: 1, name: "涉地可支", region: "東線", subregion: "咸德", cate: "景點", addr: "古城裏 21-1", maps: "https://maps.google.com" }
-    ];
-
-    // 2026.06 日期中文化名稱與對應提示
+    // 2026.06 日期對應
     const dayMapping = {
         1: { dateStr: "2026.06.09", ddmm: "09/06", temp: "24°C / 18°C", dress: "👕 建議穿著：夏裝短袖加件防曬薄外衫，防海邊紫外線。" },
         2: { dateStr: "2026.06.10", ddmm: "10/06", temp: "22°C / 17°C", dress: "☔ 建議穿著：天氣預測有局部陣雨，出門記得備好雨具！" },
@@ -554,10 +549,31 @@
         6: { dateStr: "2026.06.14", ddmm: "14/06", temp: "23°C / 17°C", dress: "✈️ 建議穿著：回程日，著重輕便好穿脫的機艙穿著。" }
     };
 
+    // --- 核心 LocalStorage 記憶管理機制 ---
     window.onload = function() {
+        // 從瀏覽器硬碟讀取資料，若無舊紀錄則套用預設初始範例
+        itineraries = localStorage.getItem('jeju_itineraries') ? JSON.parse(localStorage.getItem('jeju_itineraries')) : defaultItineraries;
+        guides = localStorage.getItem('jeju_guides') ? JSON.parse(localStorage.getItem('jeju_guides')) : defaultGuides;
+        hotels = localStorage.getItem('jeju_hotels') ? JSON.parse(localStorage.getItem('jeju_hotels')) : defaultHotels;
+        shoppings = localStorage.getItem('jeju_shoppings') ? JSON.parse(localStorage.getItem('jeju_shoppings')) : defaultShoppings;
+        explores = localStorage.getItem('jeju_explores') ? JSON.parse(localStorage.getItem('jeju_explores')) : defaultExplores;
+
+        // 首度同步存檔存檔
+        saveAllData();
+
+        // 渲染畫面
         renderItinerary(); renderGuides(); renderHotels(); renderShopping(); renderExplore();
     };
 
+    function saveAllData() {
+        localStorage.setItem('jeju_itineraries', JSON.stringify(itineraries));
+        localStorage.setItem('jeju_guides', JSON.stringify(guides));
+        localStorage.setItem('jeju_hotels', JSON.stringify(hotels));
+        localStorage.setItem('jeju_shoppings', JSON.stringify(shoppings));
+        localStorage.setItem('jeju_explores', JSON.stringify(explores));
+    }
+
+    // --- UI 交互機制 ---
     function switchTab(tabId, el) {
         document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
@@ -583,14 +599,12 @@
         return `P 周邊有公有免費停車格。`;
     }
 
-    // --- 1. 行程渲染 (同步支援多天入住之酒店卡片) ---
+    // --- 頁面模組渲染引擎 ---
     function renderItinerary() {
         const list = document.getElementById('itinerary-list');
         list.innerHTML = '';
-        
         let dayIti = itineraries.filter(item => item.day == currentDay);
 
-        // 自動檢查多天住宿勾選陣列是否有包含今天 (currentDay)
         let dayHotels = hotels.filter(h => h.dates && h.dates.includes(Number(currentDay)));
         dayHotels.forEach(h => {
             const hCard = document.createElement('div');
@@ -631,12 +645,9 @@
         tipBox.innerHTML = `<strong>日期：${dayMapping[currentDay].dateStr} (${dayMapping[currentDay].temp})</strong><br>${dayMapping[currentDay].dress}`;
     }
 
-    // --- 2. 指南頁面渲染 (支援隨意上下排序 + 置頂按鈕) ---
     function renderGuides() {
         const list = document.getElementById('guide-list');
         list.innerHTML = '';
-        
-        // 先依照 pinned 特性排序，置頂的永遠排在前頭
         let sortedGuides = [...guides].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 
         sortedGuides.forEach((g, index) => {
@@ -661,6 +672,7 @@
     function togglePinGuide(id) {
         let g = guides.find(item => item.id === id);
         if(g) g.pinned = !g.pinned;
+        saveAllData();
         renderGuides();
     }
 
@@ -668,22 +680,21 @@
         let targetIndex = index + direction;
         if (targetIndex < 0 || targetIndex >= guides.length) return;
         
-        // 考量置頂機制，我們在當前渲染狀態下直接進行數據庫位置互換調動次序
         let sortedGuides = [...guides].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
         let temp = sortedGuides[index];
         sortedGuides[index] = sortedGuides[targetIndex];
         sortedGuides[targetIndex] = temp;
         
-        guides = sortedGuides; // 回寫原陣列
+        guides = sortedGuides; 
+        saveAllData();
         renderGuides();
     }
 
-    // --- 3. 酒店數據處理 (支援多選入住日期) ---
     function renderHotels() {
         const list = document.getElementById('hotel-list');
         list.innerHTML = '';
         hotels.forEach(h => {
-            let dateLabels = h.dates.map(d => dayMapping[d].ddmm).join(', ');
+            let dateLabels = h.dates.map(d => dayMapping[d] ? dayMapping[d].ddmm : d).join(', ');
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -698,28 +709,6 @@
         });
     }
 
-    function submitHotel() {
-        const name = document.getElementById('form-hotel-name').value || "度假村飯店";
-        const addr = document.getElementById('form-hotel-addr').value || "濟州島";
-        const time = document.getElementById('form-hotel-time').value;
-        const maps = document.getElementById('form-hotel-maps').value || "https://maps.google.com";
-
-        // 讀取多個勾選的 Checkbox
-        let checkedDays = [];
-        let checkboxes = document.getElementsByName('hotel-days');
-        checkboxes.forEach(cb => {
-            if(cb.checked) checkedDays.push(Number(cb.value));
-        });
-
-        if(checkedDays.length === 0) { alert('請至少選擇一天的入住日期！'); return; }
-
-        hotels.push({ id: Date.now(), name, addr, time, maps, dates: checkedDays });
-        closeModal('modal-add-hotel');
-        renderHotels();
-        renderItinerary(); // 全自動於每日卡片中相應更新
-    }
-
-    // --- 4. 其他剩餘不變的功能組 ---
     function renderShopping() {
         const list = document.getElementById('shopping-list'); list.innerHTML = '';
         shoppings.forEach((s, index) => {
@@ -742,35 +731,78 @@
         });
     }
 
-    function filterExplore() { renderExplore(); }
-    function convertCurrency(type) { const h = document.getElementById('calc-hkd'), k = document.getElementById('calc-krw'); if (type === 'hkd') { if(h.value==="") {k.value=""; return;} k.value = Math.round(parseFloat(h.value)*exchangeRate); } else { if(k.value==="") {h.value=""; return;} h.value = (parseFloat(k.value)/exchangeRate).toFixed(2); } }
-    function queryBusAPI() { const b = document.getElementById('bus-search').value.trim(), r = document.getElementById('bus-api-result'); if(!b) { r.innerHTML = '❌ 請輸入號碼'; return; } r.innerHTML = `⏳ 連接濟州大眾運輸 API 中...`; setTimeout(() => { r.innerHTML = `<strong>🚌 巴士 ${b} 路線 (2026 最新班次)</strong><br>下一班車：12 分鐘後到達。<br>行經班距：15~25 分鐘固定一班。`; }, 500); }
-
+    // --- 資料數據變動與同步核心處理 ---
     function deleteItem(type, id) {
         if (type === 'itinerary') itineraries = itineraries.filter(i => i.id !== id);
         if (type === 'guide') guides = guides.filter(g => g.id !== id);
         if (type === 'hotel') hotels = hotels.filter(h => h.id !== id);
         if (type === 'shopping') shoppings = shoppings.filter(s => s.id !== id);
         if (type === 'explore') explores = explores.filter(e => e.id !== id);
+        
+        saveAllData(); // 立即覆寫硬碟舊檔
         renderItinerary(); renderGuides(); renderHotels(); renderShopping(); renderExplore();
     }
 
     function moveOrder(type, index, direction) {
         let arr = type === 'itinerary' ? itineraries.filter(item => item.day == currentDay) : (type === 'shopping' ? shoppings : explores);
         let targetIndex = index + direction; if (targetIndex < 0 || targetIndex >= arr.length) return;
+        
         if (type === 'itinerary') {
             let ac = itineraries.findIndex(i => i.id === arr[index].id), at = itineraries.findIndex(i => i.id === arr[targetIndex].id);
             let temp = itineraries[ac]; itineraries[ac] = itineraries[at]; itineraries[at] = temp;
         } else {
             let temp = arr[index]; arr[index] = arr[targetIndex]; arr[targetIndex] = temp;
         }
+        
+        saveAllData(); // 立即同步排序次序
         renderItinerary(); renderShopping(); renderExplore();
     }
 
-    function submitItinerary() { const day = document.getElementById('form-iti-day').value, time = document.getElementById('form-iti-time').value || "12:00", name = document.getElementById('form-iti-name').value || "未命名行程", desc = document.getElementById('form-iti-desc').value || "", cate = document.getElementById('form-iti-cate').value, tag = document.getElementById('form-iti-tag').value, maps = document.getElementById('form-iti-maps').value || "https://maps.google.com"; itineraries.push({ id: Date.now(), day, time, name, desc, cate, tag, maps }); closeModal('modal-add-itinerary'); renderItinerary(); }
-    function submitSomething() { const name = document.getElementById('form-some-name').value || "新規範", detail = document.getElementById('form-some-detail').value || ""; guides.push({ id: Date.now(), name, detail, pinned: false }); closeModal('modal-add-something'); renderGuides(); }
-    function submitShopping() { const name = document.getElementById('form-shop-name').value || "名產", loc = document.getElementById('form-shop-loc').value || "濟州商店", img = document.getElementById('form-shop-img').value, maps = document.getElementById('form-shop-maps').value || "https://maps.google.com"; shoppings.push({ id: Date.now(), name, loc, img, maps }); closeModal('modal-add-shopping'); renderShopping(); }
-    function submitExplore() { const name = document.getElementById('form-exp-name').value || "候選景點", region = document.getElementById('form-exp-region').value, subregion = document.getElementById('form-exp-sub').value || "通用", cate = document.getElementById('form-exp-cate').value, addr = document.getElementById('form-exp-addr').value || "濟州", maps = document.getElementById('form-exp-maps').value || "https://maps.google.com"; explores.push({ id: Date.now(), name, region, subregion, cate, addr, maps }); closeModal('modal-add-explore'); renderExplore(); }
+    // --- 各大表單資料提交接收點 ---
+    function submitItinerary() { 
+        const day = document.getElementById('form-iti-day').value, time = document.getElementById('form-iti-time').value || "12:00", name = document.getElementById('form-iti-name').value || "未命名行程", desc = document.getElementById('form-iti-desc').value || "", cate = document.getElementById('form-iti-cate').value, tag = document.getElementById('form-iti-tag').value, maps = document.getElementById('form-iti-maps').value || "https://maps.google.com"; 
+        itineraries.push({ id: Date.now(), day, time, name, desc, cate, tag, maps }); 
+        saveAllData(); closeModal('modal-add-itinerary'); renderItinerary(); 
+    }
+    
+    function submitSomething() { 
+        const name = document.getElementById('form-some-name').value || "新規範", detail = document.getElementById('form-some-detail').value || ""; 
+        guides.push({ id: Date.now(), name, detail, pinned: false }); 
+        saveAllData(); closeModal('modal-add-something'); renderGuides(); 
+    }
+    
+    function submitHotel() {
+        const name = document.getElementById('form-hotel-name').value || "度假村飯店";
+        const addr = document.getElementById('form-hotel-addr').value || "濟州島";
+        const time = document.getElementById('form-hotel-time').value;
+        const maps = document.getElementById('form-hotel-maps').value || "https://maps.google.com";
+
+        let checkedDays = [];
+        let checkboxes = document.getElementsByName('hotel-days');
+        checkboxes.forEach(cb => { if(cb.checked) checkedDays.push(Number(cb.value)); });
+
+        if(checkedDays.length === 0) { alert('請至少選擇一天的入住日期！'); return; }
+
+        hotels.push({ id: Date.now(), name, addr, time, maps, dates: checkedDays });
+        saveAllData(); closeModal('modal-add-hotel'); renderHotels(); renderItinerary(); 
+    }
+
+    function submitShopping() { 
+        const name = document.getElementById('form-shop-name').value || "名產", loc = document.getElementById('form-shop-loc').value || "濟州商店", img = document.getElementById('form-shop-img').value, maps = document.getElementById('form-shop-maps').value || "https://maps.google.com"; 
+        shoppings.push({ id: Date.now(), name, loc, img, maps }); 
+        saveAllData(); closeModal('modal-add-shopping'); renderShopping(); 
+    }
+    
+    function submitExplore() { 
+        const name = document.getElementById('form-exp-name').value || "候選景點", region = document.getElementById('form-exp-region').value, subregion = document.getElementById('form-exp-sub').value || "通用", cate = document.getElementById('form-exp-cate').value, addr = document.getElementById('form-exp-addr').value || "濟州", maps = document.getElementById('form-exp-maps').value || "https://maps.google.com"; 
+        explores.push({ id: Date.now(), name, region, subregion, cate, addr, maps }); 
+        saveAllData(); closeModal('modal-add-explore'); renderExplore(); 
+    }
+
+    // --- 工具庫功能 ---
+    function filterExplore() { renderExplore(); }
+    function convertCurrency(type) { const h = document.getElementById('calc-hkd'), k = document.getElementById('calc-krw'); if (type === 'hkd') { if(h.value==="") {k.value=""; return;} k.value = Math.round(parseFloat(h.value)*exchangeRate); } else { if(k.value==="") {h.value=""; return;} h.value = (parseFloat(k.value)/exchangeRate).toFixed(2); } }
+    function queryBusAPI() { const b = document.getElementById('bus-search').value.trim(), r = document.getElementById('bus-api-result'); if(!b) { r.innerHTML = '❌ 請輸入號碼'; return; } r.innerHTML = `⏳ 連接濟州大眾運輸 API 中...`; setTimeout(() => { r.innerHTML = `<strong>🚌 巴士 ${b} 路線 (2026 最新班次)</strong><br>下一班車：12 分鐘後到達。<br>行經班距：15~25 分鐘固定一班。`; }, 500); }
 </script>
 </body>
 </html>
